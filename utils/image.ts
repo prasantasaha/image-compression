@@ -56,7 +56,7 @@ const getFileData = async (
   return promise;
 };
 
-const compressImage = (
+const compressImage = async (
   file: Blob,
   dimension: { width: number; height: number },
   config: compressAccuratelyConfig = {
@@ -70,12 +70,15 @@ const compressImage = (
     dimension.height
   );
 
-  console.log(dimension, width, height);
-  return compressAccurately(file, {
-    ...config,
+  return {
+    blob: await compressAccurately(file, {
+      ...config,
+      width,
+      height
+    }),
     width,
     height
-  });
+  };
 };
 
 const decodeHEIC = (blob: Blob) => {

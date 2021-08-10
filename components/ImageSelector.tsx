@@ -104,8 +104,7 @@ const ImageSelector = (): JSX.Element => {
           <CameraIcon />
           <ActionTitle>Add Photos</ActionTitle>
           <ActionDescription>
-            Select upto {maxFiles} photos, file size shouldn't be more than{' '}
-            {maxSizeInMB} mb
+            Select upto {maxFiles} photos, file size maximum {maxSizeInMB} mb
           </ActionDescription>
         </Fragment>
       )}

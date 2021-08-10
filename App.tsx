@@ -13,11 +13,6 @@ export const Container = styled.div`
   align-items: center;
 `;
 
-const SubmitButton = styled.button`
-  width: 80px;
-  height: 40px;
-`;
-
 const App = (): JSX.Element => {
   return (
     <Container>
@@ -26,7 +21,6 @@ const App = (): JSX.Element => {
         <ImageSelector />
         <Thumbnails />
         <FileSize />
-        <SubmitButton disabled>Upload</SubmitButton>
       </AppContextProvider>
     </Container>
   );

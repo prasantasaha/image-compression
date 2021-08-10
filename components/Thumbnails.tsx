@@ -70,7 +70,6 @@ const Image = styled.img`
   width: auto;
   height: auto;
   margin: 8px;
-  cursor: pointer;
 
   @media (max-width: 600px) {
     margin: 0;
@@ -96,10 +95,10 @@ const Thumbnails = (): JSX.Element | null => {
 
   const downloadCompressed = async (image: ImageData) => {
     const blob = await dataURLtoFile(image.data);
-    const compressedBlob = await compressImage(blob, {
+    const compressedBlob = (await compressImage(blob, {
       width: image.width,
       height: image.height
-    });
+    })).blob;
 
     downloadFile(
       compressedBlob,
