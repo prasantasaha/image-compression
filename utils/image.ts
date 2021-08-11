@@ -110,7 +110,7 @@ const getDownScaledDimension = (
 
   // potrait
   result.height = maxPixels;
-  result.width = Math.floor(maxPixels * (height / width));
+  result.width = Math.floor(maxPixels * (width / height));
   return result;
 };
 

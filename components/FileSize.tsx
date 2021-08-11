@@ -85,10 +85,13 @@ const FileSize = (): JSX.Element | null => {
 
   return (
     <Container>
-      <div>Total size: {`${formatBytes(totalSize)} MB before compression`}</div>
+      <div>
+        Total size: <mark>{formatBytes(totalSize)} MB</mark> before compression
+      </div>
       <SubmitButton onClick={() => compressFiles()}>
         Compress images
       </SubmitButton>
+      <mark>Image size is capped at 1800 x 1800 px, 0.33 MB</mark>
       {compressing ? (
         <span>Compressing images</span>
       ) : (
@@ -102,16 +105,16 @@ const FileSize = (): JSX.Element | null => {
                 width="200"
                 height="150"
               />
-              {formatBytes(item.blob.size)} MB ({item.width} x {item.height}
+              <mark>{formatBytes(item.blob.size)} MB</mark> ({item.width} x{' '}
+              {item.height}
               px)
             </div>
           ))}
           <hr />
-          Total compressed size:{' '}
-          {`${formatBytes(totalCompressedSize)} MB after compression`}
+          Total size: <mark>{formatBytes(totalCompressedSize)} MB</mark> after
+          compression
         </div>
       )}
-
       <SubmitButton disabled>Upload</SubmitButton>
     </Container>
   );
