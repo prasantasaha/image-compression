@@ -5,7 +5,6 @@ import {
   compressImage,
   dataURLtoFile,
   downloadFile,
-  EImageType,
   ImageData
 } from '../utils/image';
 

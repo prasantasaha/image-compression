@@ -1,4 +1,3 @@
-import heic2any from 'heic2any';
 import {
   compressAccurately,
   compressAccuratelyConfig,
@@ -7,7 +6,9 @@ import {
   EImageType
 } from 'image-conversion';
 
-interface ImageData {
+import libheif from 'libheif-js';
+
+interface ImageObject {
   path: string;
   data: string;
   width: number;
@@ -81,8 +82,61 @@ const compressImage = async (
   };
 };
 
-const decodeHEIC = (blob: Blob) => {
-  return heic2any({ blob });
+const getImageData = async (image): Promise<ImageData> => {
+  const width = image.get_width();
+  const height = image.get_height();
+
+  const imageData: ImageData = await new Promise((resolve, reject) => {
+    const whiteImage = new ImageData(width, height);
+    image.display(whiteImage, displayData => {
+      if (!displayData) {
+        return reject(new Error('HEIF processing error'));
+      }
+      resolve(displayData);
+    });
+  });
+
+  return imageData;
+};
+
+const imageDataToDataURL = (
+  imageData: ImageData,
+  type: string = 'image/jpeg',
+  quality: number = 0.7
+): string => {
+  const canvas = document.createElement('canvas');
+  canvas.width = imageData.width;
+  canvas.height = imageData.height;
+  const ctx = canvas.getContext('2d');
+
+  ctx.putImageData(imageData, 0, 0);
+  return canvas.toDataURL(type, quality);
+};
+
+const decodeHEIC = async (
+  blob: Blob | File,
+  multiple = false
+): Promise<string | string[]> => {
+  const decoder = new libheif.HeifDecoder();
+  let data;
+
+  try {
+    data = decoder.decode(await blob.arrayBuffer());
+  } catch (error) {
+    console.log(error);
+  }
+
+  if (!data.length) {
+    throw new Error('HEIF image not found');
+  }
+
+  if (!multiple) {
+    return imageDataToDataURL(await getImageData(data[0]));
+  }
+
+  return data.map(async image => {
+    return imageDataToDataURL(await getImageData(image));
+  });
 };
 
 const getDownScaledDimension = (
@@ -115,7 +169,7 @@ const getDownScaledDimension = (
 };
 
 export {
-  ImageData,
+  ImageObject,
   decodeHEIC,
   getHeightAndWidthFromDataUrl,
   getFileData,
