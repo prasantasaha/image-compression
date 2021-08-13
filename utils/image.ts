@@ -99,32 +99,35 @@ const getImageData = async (image): Promise<ImageData> => {
   return imageData;
 };
 
-const imageDataToDataURL = (
+const imageDataToDataURL = async (
   imageData: ImageData,
   type: string = 'image/jpeg',
   quality: number = 0.7
-): string => {
+): Promise<Blob> => {
   const canvas = document.createElement('canvas');
   canvas.width = imageData.width;
   canvas.height = imageData.height;
   const ctx = canvas.getContext('2d');
 
   ctx.putImageData(imageData, 0, 0);
-  return canvas.toDataURL(type, quality);
+
+  return new Promise(resolve => {
+    canvas.toBlob(
+      (blob: Blob) => {
+        resolve(blob);
+      },
+      type,
+      quality
+    );
+  });
 };
 
 const decodeHEIC = async (
   blob: Blob | File,
   multiple = false
-): Promise<string | string[]> => {
+): Promise<Blob | Blob[]> => {
   const decoder = new libheif.HeifDecoder();
-  let data;
-
-  try {
-    data = decoder.decode(await blob.arrayBuffer());
-  } catch (error) {
-    console.log(error);
-  }
+  const data = decoder.decode(await blob.arrayBuffer());
 
   if (!data.length) {
     throw new Error('HEIF image not found');

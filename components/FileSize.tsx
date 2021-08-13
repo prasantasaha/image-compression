@@ -1,7 +1,8 @@
 import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAppContext } from '../AppContext';
-import { compressImage, dataURLtoFile, ImageData } from '../utils/image';
+import { compressImage, dataURLtoFile } from '../utils/image';
+import CompareSlider from './CompareSlider';
 
 const Container = styled.div`
   margin: 16px;
@@ -15,12 +16,13 @@ const SubmitButton = styled.button`
   height: 40px;
 `;
 
-const Image = styled.img`
+const ImageContainer = styled.div`
   display: block;
-  max-width: 160px;
-  max-height: 120px;
+  max-width: 300px;
+  max-height: 200px;
   width: auto;
   height: auto;
+  margin: 4px 0;
 `;
 
 const formatBytes = (bytes: number, decimals = 2): number => {
@@ -30,7 +32,7 @@ const formatBytes = (bytes: number, decimals = 2): number => {
 };
 
 const FileSize = (): JSX.Element | null => {
-  const { images } = useAppContext();
+  const { images, maxFiles, totalFileByteSize , maxDimension} = useAppContext();
   const [totalSize, setTotalSize] = useState<number>(0);
   const [compressed, setCompressed] = useState<
     { blob: Blob; width: number; height: number }[]
@@ -91,7 +93,10 @@ const FileSize = (): JSX.Element | null => {
       <SubmitButton onClick={() => compressFiles()}>
         Compress images
       </SubmitButton>
-      <mark>Image size is capped at 1800 x 1800 px, 0.33 MB</mark>
+      <mark>
+        Image size is capped at {maxDimension} x {maxDimension} px,{' '}
+        {formatBytes(totalFileByteSize / maxFiles)} MB
+      </mark>
       {compressing ? (
         <span>Compressing images</span>
       ) : (
@@ -99,12 +104,11 @@ const FileSize = (): JSX.Element | null => {
           <hr />
           {compressed.map((item, index) => (
             <div key={index}>
-              <Image
-                src={URL.createObjectURL(item.blob)}
-                alt=""
-                width="200"
-                height="150"
-              />
+              <ImageContainer>
+                <CompareSlider
+                  images={[images[index].data, URL.createObjectURL(item.blob)]}
+                />
+              </ImageContainer>
               <mark>{formatBytes(item.blob.size)} MB</mark> ({item.width} x{' '}
               {item.height}
               px)
@@ -115,7 +119,6 @@ const FileSize = (): JSX.Element | null => {
           compression
         </div>
       )}
-      <SubmitButton disabled>Upload</SubmitButton>
     </Container>
   );
 };

@@ -71,7 +71,7 @@ const Image = styled.img`
   margin: 8px;
 
   @media (max-width: 600px) {
-    margin: 0;
+    margin: 4px;
     max-width: 240px;
     max-height: 180px;
   }

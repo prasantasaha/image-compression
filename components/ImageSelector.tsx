@@ -45,9 +45,7 @@ const ActionDescription = styled.h3`
 `;
 
 const ImageSelector = (): JSX.Element => {
-  const { images, addImage } = useAppContext();
-  const maxFiles = 3;
-  const maxSizeInMB = 25;
+  const { images, maxFiles, maxSizeInMB, addImage } = useAppContext();
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]): Promise<void> => {
