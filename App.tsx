@@ -16,7 +16,7 @@ export const Container = styled.div`
 const App = (): JSX.Element => {
   return (
     <Container>
-      <p>Compress and upload images</p>
+      <p>Compress images</p>
       <AppContextProvider>
         <ImageSelector />
         <Thumbnails />

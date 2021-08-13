@@ -1,4 +1,11 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  Dispatch,
+  SetStateAction,
+  useEffect
+} from 'react';
 import { ImageObject } from './utils/image';
 
 type AppContextParams = {
@@ -8,6 +15,9 @@ type AppContextParams = {
   totalFileByteSize?: number;
   maxDimension?: number;
   addImage?: (image: ImageObject) => void;
+  reset?: () => void;
+  updateMaxDimension?: Dispatch<SetStateAction<number>>;
+  updateTotalFileByteSize?: Dispatch<SetStateAction<number>>;
 };
 
 export const AppContext = createContext<AppContextParams>({
@@ -20,9 +30,22 @@ export const AppContextProvider = ({
   children: JSX.Element[] | JSX.Element;
 }): JSX.Element => {
   const [images, setImages] = useState<ImageObject[]>([]);
+  const [maxDimension, updateMaxDimension] = useState<number>(0);
+  const [totalFileByteSize, updateTotalFileByteSize] = useState<number>(0);
 
+  useEffect(() => init(), []);
+
+  const init = () => {
+    setImages([]);
+    updateMaxDimension(1800);
+    updateTotalFileByteSize(Math.pow(1024, 2));
+  };
   const addImage = (newImage: ImageObject) => {
     setImages(otherImages => [...otherImages, newImage]);
+  };
+
+  const reset = () => {
+    init();
   };
 
   return (
@@ -31,9 +54,12 @@ export const AppContextProvider = ({
         images,
         maxFiles: 3,
         maxSizeInMB: 30,
-        totalFileByteSize: Math.pow(1024, 2),
-        maxDimension: 1800,
-        addImage
+        totalFileByteSize,
+        maxDimension,
+        addImage,
+        reset,
+        updateMaxDimension,
+        updateTotalFileByteSize
       }}
     >
       {children}

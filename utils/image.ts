@@ -7,6 +7,7 @@ import {
 } from 'image-conversion';
 
 import libheif from 'libheif-js';
+import { useAppContext } from '../AppContext';
 
 interface ImageObject {
   path: string;
@@ -60,6 +61,7 @@ const getFileData = async (
 const compressImage = async (
   file: Blob,
   dimension: { width: number; height: number },
+  maxPixels: number,
   config: compressAccuratelyConfig = {
     size: 340,
     accuracy: 98,
@@ -68,7 +70,8 @@ const compressImage = async (
 ) => {
   const { width, height } = getDownScaledDimension(
     dimension.width,
-    dimension.height
+    dimension.height,
+    maxPixels
   );
 
   return {
@@ -144,9 +147,9 @@ const decodeHEIC = async (
 
 const getDownScaledDimension = (
   width: number,
-  height: number
+  height: number,
+  maxPixels: number
 ): { width: number; height: number } => {
-  const maxPixels = 1800;
   const requireDownScale = Math.max(width, height) > maxPixels;
 
   const result = {

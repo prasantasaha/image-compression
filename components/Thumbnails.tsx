@@ -5,7 +5,7 @@ import {
   compressImage,
   dataURLtoFile,
   downloadFile,
-  ImageData
+  ImageObject
 } from '../utils/image';
 
 const Container = styled.div`
@@ -85,22 +85,26 @@ const DownloadIcon = styled.i.attrs({
 `;
 
 const Thumbnails = (): JSX.Element | null => {
-  const { images } = useAppContext();
+  const { images, maxDimension } = useAppContext();
 
-  const downloadOriginal = async (image: ImageData) => {
+  const downloadOriginal = async (image: ImageObject) => {
     const blob = await dataURLtoFile(image.data);
     downloadFile(blob, image.path || 'image');
   };
 
-  const downloadCompressed = async (image: ImageData) => {
-    const blob = await dataURLtoFile(image.data);
-    const compressedBlob = (await compressImage(blob, {
-      width: image.width,
-      height: image.height
-    })).blob;
+  const downloadCompressed = async (image: ImageObject) => {
+    const sourceBlob = await dataURLtoFile(image.data);
+    const { blob } = await compressImage(
+      sourceBlob,
+      {
+        width: image.width,
+        height: image.height
+      },
+      maxDimension
+    );
 
     downloadFile(
-      compressedBlob,
+      blob,
       image.path
         ? image.path.slice(0, image.path.lastIndexOf('.')) + '-compressed.jpeg'
         : 'image-compressed'
@@ -113,7 +117,7 @@ const Thumbnails = (): JSX.Element | null => {
 
   return (
     <Container>
-      {images.map((item: ImageData, index: number) => (
+      {images.map((item: ImageObject, index: number) => (
         <ItemContainer key={index}>
           <Image src={item.data} alt="" width="400" height="300" />
           <InfoContainer>

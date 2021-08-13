@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useAppContext } from '../AppContext';
 import { compressImage, dataURLtoFile } from '../utils/image';
@@ -9,6 +9,17 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+
+const FormContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const NumberInput = styled.input`
+  width: 80px;
+  margin: 8px;
+  padding: 4px;
 `;
 
 const SubmitButton = styled.button`
@@ -32,7 +43,15 @@ const formatBytes = (bytes: number, decimals = 2): number => {
 };
 
 const FileSize = (): JSX.Element | null => {
-  const { images, maxFiles, totalFileByteSize , maxDimension} = useAppContext();
+  const {
+    images,
+    maxFiles,
+    totalFileByteSize,
+    maxDimension,
+    reset,
+    updateMaxDimension,
+    updateTotalFileByteSize
+  } = useAppContext();
   const [totalSize, setTotalSize] = useState<number>(0);
   const [compressed, setCompressed] = useState<
     { blob: Blob; width: number; height: number }[]
@@ -71,10 +90,14 @@ const FileSize = (): JSX.Element | null => {
     setCompressing(true);
     for (let index = 0; index < images.length; index++) {
       const blob = await dataURLtoFile(images[index].data as string);
-      const compressedBlob = await compressImage(blob, {
-        width: images[index].width,
-        height: images[index].height
-      });
+      const compressedBlob = await compressImage(
+        blob,
+        {
+          width: images[index].width,
+          height: images[index].height
+        },
+        maxDimension
+      );
       setCompressed(files => [...files, compressedBlob]);
     }
 
@@ -90,9 +113,38 @@ const FileSize = (): JSX.Element | null => {
       <div>
         Total size: <mark>{formatBytes(totalSize)} MB</mark> before compression
       </div>
-      <SubmitButton onClick={() => compressFiles()}>
-        Compress images
-      </SubmitButton>
+
+      <FormContainer>
+        <label>Maximum width/height</label>
+        <NumberInput
+          id="maxDimension"
+          type="number"
+          value={maxDimension}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            updateMaxDimension(+event.target.value);
+          }}
+        />
+        <label>Total bytes after compression</label>
+        <NumberInput
+          type="number"
+          value={totalFileByteSize}
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            updateTotalFileByteSize(+event.target.value);
+          }}
+        />
+        <SubmitButton onClick={() => compressFiles()}>
+          Compress images
+        </SubmitButton>
+        <SubmitButton
+          onClick={() => {
+            reset();
+            setCompressed([]);
+          }}
+        >
+          Reset
+        </SubmitButton>
+      </FormContainer>
+
       <mark>
         Image size is capped at {maxDimension} x {maxDimension} px,{' '}
         {formatBytes(totalFileByteSize / maxFiles)} MB
